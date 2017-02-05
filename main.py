@@ -33,17 +33,30 @@ score_board = [[99, -8, 8, 6, 6, 8, -8, 99],
 
 def map_fuc(value):
     i = int(value/8)
-    return chr(96+(value%8)) + chr(49 + i);
+    return chr(96+(value%8)) + chr(49 + i)
+
+
+def update_value(val):
+    if val == -float('Inf'):
+        val = "-Infinity"
+    elif val == float('Inf'):
+        val = "Infinity"
+    return val
 
 
 def print_fuc(value, d, v, alpha, beta):
     if value == "root":
-        print "root", d, v, alpha, beta
+        temp = "root"
+        #print "root", d, v, alpha, beta
     elif value == "pass":
-        print "pass", d, v, alpha, beta
+        temp = "pass"
+        #print "pass", d, v, alpha, beta
     else:
         temp = map_fuc(value)
-        print temp, d, v, alpha, beta
+    v= update_value(v)
+    alpha = update_value(alpha)
+    beta = update_value(beta)
+    print temp, d, v, alpha, beta
 
 
 def evaluation(state, cur_player):
@@ -58,6 +71,16 @@ def evaluation(state, cur_player):
     return val_cur - val_opp
 
 
+def place_dict(plc, new_state, val):
+    for i in xrange(8):
+        if val in plc.keys():
+            val += 64
+        else:
+            plc[val] = new_state
+            break
+    return plc
+
+
 def generate_states(state, cur_player):
     plc = {}
     new_state = copy.deepcopy(state)
@@ -70,55 +93,59 @@ def generate_states(state, cur_player):
             # TODO: Handling when boundary is reached
             if state[i][j] == cur_player:
                 # UP
-                if state[i - 1][j] == opp_player:
-                    for k in xrange(i, -1, -1):
-                        if state[k - 1][j] == opp_player:
-                            new_state[k - 1][j] = cur_player
-                        elif state[k - 1][j] == cur_player:
+                if i > 0 and state[i - 1][j] == opp_player:
+                    for k in xrange(i - 1, -1, -1):
+                        if state[k][j] == opp_player:
+                            new_state[k][j] = cur_player
+                        elif state[k][j] == cur_player:
                             break
                         else:
-                            new_state[k - 1][j] = cur_player
-                            plc[(k - 1) * 8 + j + 1] = new_state
+                            new_state[k][j] = cur_player
+                            plc = place_dict(plc, new_state, k * 8 + j+ 1)
+                            #plc[k * 8 + j + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
                 # DOWN
-                if state[i + 1][j] == opp_player:
-                    for k in xrange(i, 8):
-                        if state[k + 1][j] == opp_player:
-                            new_state[k + 1][j] = cur_player
-                        elif state[k + 1][j] == cur_player:
+                if (i + 1) < 8 and state[i + 1][j] == opp_player:
+                    for k in xrange(i + 1, 8):
+                        if state[k][j] == opp_player:
+                            new_state[k][j] = cur_player
+                        elif state[k][j] == cur_player:
                             break
                         else:
-                            new_state[k + 1][j] = cur_player
-                            plc[(k + 1) * 8 + j + 1] = new_state
+                            new_state[k][j] = cur_player
+                            plc = place_dict(plc, new_state, k * 8 + j + 1)
+                            #plc[k * 8 + j + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
                 # LEFT
-                if state[i][j - 1] == opp_player:
-                    for k in xrange(j, -1, -1):
-                        if state[i][k - 1] == opp_player:
-                            new_state[i][k - 1] = cur_player
-                        elif state[i][k - 1] == cur_player:
+                if j > 0 and state[i][j - 1] == opp_player:
+                    for k in xrange(j - 1, -1, -1):
+                        if state[i][k] == opp_player:
+                            new_state[i][k] = cur_player
+                        elif state[i][k] == cur_player:
                             break
                         else:
-                            new_state[i][k - 1] = cur_player
-                            plc[i * 8 + k] = new_state
+                            new_state[i][k] = cur_player
+                            plc = place_dict(plc, new_state, i * 8 + k + 1)
+                            #plc[i * 8 + k + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
                 # RIGHT
-                if state[i][j + 1] == opp_player:
-                    for k in xrange(j, 8):
-                        if state[i][k + 1] == opp_player:
-                            new_state[i][k + 1] = cur_player
-                        elif state[i][k + 1] == cur_player:
+                if (j + 1) < 8 and state[i][j + 1] == opp_player:
+                    for k in xrange(j + 1, 8):
+                        if state[i][k] == opp_player:
+                            new_state[i][k] = cur_player
+                        elif state[i][k] == cur_player:
                             break
                         else:
-                            new_state[i][k + 1] = cur_player
-                            plc[i * 8 + (k + 2)] = new_state
+                            new_state[i][k] = cur_player
+                            plc = place_dict(plc, new_state, i * 8 + (k + 1))
+                            #plc[i * 8 + (k + 1)] = new_state
                             break
                     new_state = copy.deepcopy(state)
                 # DIAG LEFT TOP
-                if state[i - 1][j - 1] == opp_player:
+                if i > 0 and j > 0 and state[i - 1][j - 1] == opp_player:
                     k = i - 1
                     m = j - 1
                     while k >= 0 and m >= 0:
@@ -130,12 +157,13 @@ def generate_states(state, cur_player):
                             break
                         else:
                             new_state[k][m] = cur_player
-                            plc[k * 8 + m + 1] = new_state
+                            plc = place_dict(plc, new_state, k * 8 + m + 1)
+                            #plc[k * 8 + m + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
 
                 # DIAG RIGHT TOP
-                if state[i + 1][j + 1] == opp_player:
+                if (i + 1) < 8 and (j + 1) < 8 and state[i + 1][j + 1] == opp_player:
                     k = i + 1
                     m = j + 1
                     while k < 8 and m < 8:
@@ -147,12 +175,13 @@ def generate_states(state, cur_player):
                             break
                         else:
                             new_state[k][m] = cur_player
-                            plc[k * 8 + m + 1] = new_state
+                            plc = place_dict(plc, new_state, k * 8 + m + 1)
+                            #plc[k * 8 + m + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
 
                 # DIAG LEFT BOTTOM
-                if state[i + 1][j - 1] == opp_player:
+                if (i + 1) < 8 and j > 0 and state[i + 1][j - 1] == opp_player:
                     k = i + 1
                     m = j - 1
                     while k < 8 and m >= 0:
@@ -164,12 +193,13 @@ def generate_states(state, cur_player):
                             break
                         else:
                             new_state[k][m] = cur_player
-                            plc[k * 8 + m + 1] = new_state
+                            plc = place_dict(plc, new_state, k * 8 + m + 1)
+                            #plc[k * 8 + m + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
 
                 # DIAG RIGHT BOTTOM
-                if state[i - 1][j + 1] == opp_player:
+                if i > 0 and (j + 1) < 8 and state[i - 1][j + 1] == opp_player:
                     k = i - 1
                     m = j + 1
                     while k >= 0 and m < 8:
@@ -181,10 +211,11 @@ def generate_states(state, cur_player):
                             break
                         else:
                             new_state[k][m] = cur_player
-                            plc[k * 8 + m + 1] = new_state
+                            plc = place_dict(plc, new_state, k * 8 + m + 1)
+                            #plc[k * 8 + m + 1] = new_state
                             break
                     new_state = copy.deepcopy(state)
-    plc.keys().sort()
+    #plc.keys().sort()
 
     return plc
 
@@ -250,15 +281,25 @@ def Max_Value(value, state, alpha, beta):
 
     for a in sorted(action_list.keys()):
 
-        print_fuc(value, depth_count, v, alpha, beta)
-        depth_count += 1
-        #print a, depth_count, v, alpha, beta
-        v = MAX(v, Min_Value(a, action_list[a], alpha, beta))
-        depth_count -= 1
-        if v >= beta:
+        key = a
+        while True:
             print_fuc(value, depth_count, v, alpha, beta)
-            return v
-        alpha = MAX(alpha, v)
+            depth_count += 1
+            #print a, depth_count, v, alpha, beta
+            v = MAX(v, Min_Value(a, action_list[key], alpha, beta))
+            depth_count -= 1
+            if v >= beta:
+                print_fuc(value, depth_count, v, alpha, beta)
+                return v
+            alpha = MAX(alpha, v)
+
+            del action_list[key]
+            if (key + 64) in action_list.keys():
+                key += 64
+                continue
+            else:
+                break
+
         #print a, depth_count, v, alpha, beta
 
     print_fuc(value, depth_count, v, alpha, beta)
@@ -293,16 +334,24 @@ def Min_Value(value, state, alpha, beta):
         return v
 
     for a in sorted(action_list.keys()):
-        print_fuc(value, depth_count, v, alpha, beta)
-        depth_count += 1
 
-        v = MIN(v, Max_Value(a, action_list[a], alpha, beta))
-        depth_count -= 1
-        if v <= alpha:
+        key = a
+        while True:
             print_fuc(value, depth_count, v, alpha, beta)
-            return v
-        beta = MIN(beta, v)
+            depth_count += 1
 
+            v = MIN(v, Max_Value(a, action_list[a], alpha, beta))
+            depth_count -= 1
+            if v <= alpha:
+                print_fuc(value, depth_count, v, alpha, beta)
+                return v
+            beta = MIN(beta, v)
+            del action_list[key]
+            if (key + 64) in action_list.keys():
+                key += 64
+                continue
+            else:
+                break
 
     print_fuc(value, depth_count, v, alpha, beta)
     return v
@@ -318,8 +367,10 @@ def alpha_beta_pruning(state):
     for s in action_list:
         if v == evaluation(action_list[s], player):
             for i in action_list:
-                return action_list[i],
-    return state
+                l = action_list[i]
+                for lin in l:
+                    print "".join(lin)+"\n"
+    for lin in state:
+        print "".join(lin)
 
-
-print alpha_beta_pruning(board)
+alpha_beta_pruning(board)
