@@ -9,6 +9,10 @@ opponent = 'X'
 if player == 'X':
     opponent = 'O'
 
+log = ""
+
+reached_root = 0
+
 depth = int(file_read.readline().strip())
 
 depth_count = 0
@@ -45,17 +49,21 @@ def update_value(val):
 
 
 def print_fuc(value, d, v, alpha, beta):
+    global log
     if value == "root":
         temp = "root"
         #print "root", d, v, alpha, beta
     elif value == "pass":
         temp = "pass"
         #print "pass", d, v, alpha, beta
+    elif value == "Node":
+        temp = "Node"
     else:
         temp = map_fuc(value)
     v= update_value(v)
     alpha = update_value(alpha)
     beta = update_value(beta)
+    log += "\n{0},{1},{2},{3},{4}".format(temp, d, v, alpha, beta)
     print temp, d, v, alpha, beta
 
 
@@ -222,7 +230,7 @@ def generate_states(state, cur_player):
 
 def Terminal_Test(state, actions_list):
     a = 0
-    if depth == 0:
+    if depth == depth_count:
         return 1
     global pass_game
 
@@ -253,7 +261,6 @@ def MIN(a, b):
 
 
 def Max_Value(value, state, alpha, beta):
-    global depth
     global depth_count
     v = -float('Inf')
 
@@ -262,8 +269,6 @@ def Max_Value(value, state, alpha, beta):
         v = evaluation(state, player)
         print_fuc(value, depth_count, v, alpha, beta)
         return v
-
-    depth -= 1
 
     if pass_game == 1 or pass_game == 2:
         print_fuc(value, depth_count, v, alpha, beta)
@@ -307,7 +312,6 @@ def Max_Value(value, state, alpha, beta):
 
 
 def Min_Value(value, state, alpha, beta):
-    global depth
     global depth_count
     v = float('Inf')
 
@@ -316,8 +320,6 @@ def Min_Value(value, state, alpha, beta):
         v = evaluation(state, player)
         print_fuc(value, depth_count, v, alpha, beta)
         return v
-
-    depth -= 1
 
     if pass_game == 1 or pass_game == 2:
         print_fuc(value, depth_count, v, alpha, beta)
@@ -359,18 +361,29 @@ def Min_Value(value, state, alpha, beta):
 
 def alpha_beta_pruning(state):
     global player
-    print "Node,Depth,Value,Alpha,Beta"
+    flag = 0
+    print_fuc("Node","Depth","Value","Alpha","Beta")
 
     v = Max_Value("root", state, -float('Inf'), float('Inf'))
 
     action_list = generate_states(state, player)
     for s in action_list:
         if v == evaluation(action_list[s], player):
-            for i in action_list:
-                l = action_list[i]
-                for lin in l:
-                    print "".join(lin)+"\n"
-    for lin in state:
-        print "".join(lin)
+            l = action_list[s]
+            for lin in l:
+                flag = 1
+                print "".join(lin)
+                file_write.write("".join(lin) + '\n')
+
+    if flag == 0:
+        for lin in state:
+            print "".join(lin)
+            file_write.write("".join(lin) + '\n')
+
 
 alpha_beta_pruning(board)
+
+print log[1:]
+#log.
+#log[0] = log[0][1:]
+file_write.write(log[1:])
