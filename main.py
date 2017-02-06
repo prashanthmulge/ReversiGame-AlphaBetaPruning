@@ -284,8 +284,12 @@ def Max_Value(value, state, alpha, beta):
         print_fuc(value, depth_count, v, alpha, beta)
         return v
 
-    for a in sorted(action_list.keys()):
+    keylist_t = action_list.keys()
+    keylist_t.sort()
+    for a in keylist_t:
 
+        # if a > 64:
+        #     break
         key = a
         while True:
             print_fuc(value, depth_count, v, alpha, beta)
@@ -299,6 +303,8 @@ def Max_Value(value, state, alpha, beta):
             alpha = MAX(alpha, v)
 
             del action_list[key]
+            keylist_t.remove(key) #= action_list.keys()
+            #keylist_t.sort()
             if (key + 64) in action_list.keys():
                 key += 64
                 continue
@@ -335,8 +341,11 @@ def Min_Value(value, state, alpha, beta):
         print_fuc(value, depth_count, v, alpha, beta)
         return v
 
-    for a in sorted(action_list.keys()):
-
+    keylst_t = action_list.keys()
+    keylst_t.sort()
+    for a in keylst_t:
+        # if a > 64:
+        #     break
         key = a
         while True:
             print_fuc(value, depth_count, v, alpha, beta)
@@ -349,6 +358,8 @@ def Min_Value(value, state, alpha, beta):
                 return v
             beta = MIN(beta, v)
             del action_list[key]
+            keylst_t.remove(key) #= action_list.keys()
+            #keylst_t.sort()
             if (key + 64) in action_list.keys():
                 key += 64
                 continue
