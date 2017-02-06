@@ -1,7 +1,7 @@
 import math
 import copy
 
-file_read = open('input.txt', 'r')
+file_read = open('input_1.txt', 'r')
 file_write = open('output.txt', 'w')
 
 player = file_read.readline().strip()
@@ -37,7 +37,10 @@ score_board = [[99, -8, 8, 6, 6, 8, -8, 99],
 
 def map_fuc(value):
     i = int(value/8)
-    return chr(96+(value%8)) + chr(49 + i)
+    if value%8 == 0:
+        return chr(96 + 8) + chr(49 + i - 1)
+    else:
+        return chr(96+(value%8)) + chr(49 + i)
 
 
 def update_value(val):
@@ -302,8 +305,9 @@ def Max_Value(value, state, alpha, beta):
                 return v
             alpha = MAX(alpha, v)
 
-            del action_list[key]
-            keylist_t.remove(key) #= action_list.keys()
+            if key > 64:
+                del action_list[key]
+                keylist_t.remove(key) #= action_list.keys()
             #keylist_t.sort()
             if (key + 64) in action_list.keys():
                 key += 64
@@ -357,8 +361,10 @@ def Min_Value(value, state, alpha, beta):
                 print_fuc(value, depth_count, v, alpha, beta)
                 return v
             beta = MIN(beta, v)
-            del action_list[key]
-            keylst_t.remove(key) #= action_list.keys()
+
+            if key > 64:
+                del action_list[key]
+                keylst_t.remove(key) #= action_list.keys()
             #keylst_t.sort()
             if (key + 64) in action_list.keys():
                 key += 64
@@ -379,22 +385,23 @@ def alpha_beta_pruning(state):
 
     action_list = generate_states(state, player)
     for s in action_list:
-        if v == evaluation(action_list[s], player):
-            l = action_list[s]
-            for lin in l:
-                flag = 1
-                print "".join(lin)
-                file_write.write("".join(lin) + '\n')
+        l = action_list[s]
+        for lin in l:
+            flag = 1
+            print "".join(lin)
+            file_write.write("".join(lin) + '\n')
+        break
+
 
     if flag == 0:
         for lin in state:
-            print "".join(lin)
+            #print "".join(lin)
             file_write.write("".join(lin) + '\n')
 
 
 alpha_beta_pruning(board)
 
-print log[1:]
+#print log[1:]
 #log.
 #log[0] = log[0][1:]
 file_write.write(log[1:])
