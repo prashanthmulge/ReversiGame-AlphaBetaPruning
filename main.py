@@ -1,7 +1,7 @@
 import math
 import copy
 
-file_read = open('input_1.txt', 'r')
+file_read = open('input.txt', 'r')
 file_write = open('output.txt', 'w')
 
 player = file_read.readline().strip()
@@ -384,7 +384,9 @@ def alpha_beta_pruning(state):
     v = Max_Value("root", state, -float('Inf'), float('Inf'))
 
     action_list = generate_states(state, player)
-    for s in action_list:
+    keylist = action_list.keys()
+    keylist.sort()
+    for s in keylist:
         l = action_list[s]
         for lin in l:
             flag = 1
